@@ -12,11 +12,10 @@ import json
 
 # main script
 def main():
-    cobject = Category.objects.all()
-    print(cobject)
+    
     print('start script')
     # read the json data
-    with open('data.json') as json_data:
+    with open('data.json', encoding = "utf8") as json_data:
         data = json.load(json_data)
         print("opens")
     cats = {}
@@ -36,7 +35,7 @@ def main():
         prod['category'] = cats[prod['category']]
         prod['currencycode'] = concur[prod['currencycode']]
     # create the categories
-    print(concur)
+
     for cat_name, cat_id in cats.items():
         new_cat = Category()
         new_cat.id = cat_id
@@ -114,7 +113,7 @@ def main():
         p.charity_name = prod['charity_name']
         p.save()
         print('saved')
-        print(Campaign.objects.all())
+
     
     
 if __name__ == '__main__':
