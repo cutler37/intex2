@@ -21,6 +21,7 @@ class CampaignList (APIView):
     def get(self, request, format = None):
         otherway = serialize("json", Campaign.objects.all(),cls=LazyEncoder)
         return Response(json.loads(otherway))
+
     @csrf_exempt
     def post(self,request,format=None):
         prod=request.data

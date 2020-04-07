@@ -111,6 +111,7 @@ def main():
         else:
             p.is_charity = False
         p.charity_name = prod['charity_name']
+        p.riskScore = prod['riskScore']
         p.save()
         print('saved')
 
