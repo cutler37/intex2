@@ -1,7 +1,7 @@
 [{
     "FIELD1": 6449,
     "url": "https://www.gofundme.com/f/ytg65x-coronas",
-    "campaign_id": 0,
+    "campaign_id": 3,
     "auto_fb_post_mode": null,
     "collected_date": "2020-03-29",
     "category_id": 0,
@@ -12,7 +12,7 @@
     "donators": 0,
     "days_active": null,
     "days_created": null,
-    "title": "",
+    "title": "something",
     "description": "",
     "default_url": "",
     "has_beneficiary": false,
