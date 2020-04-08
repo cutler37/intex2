@@ -1,14 +1,16 @@
 from django.shortcuts import render
 from api.serializers import CampaignSerializer
-from api.models import Campaign,CurrencyCode,Category
+from api.models import Campaign,CurrencyCode,Category,User
 from django.core.serializers import serialize
 from django.views.decorators.csrf import csrf_exempt
 from django.core.serializers.json import DjangoJSONEncoder
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+import hashlib
 from django.http import JsonResponse
 import json
+import random
 
 class LazyEncoder(DjangoJSONEncoder):
     def default(self, obj):
@@ -16,6 +18,50 @@ class LazyEncoder(DjangoJSONEncoder):
             return str(obj)
         return super().default(obj)
 # Create your views here.
+class GetUser (APIView):
+    @csrf_exempt
+    def get(self, request, format = None):
+        otherway = serialize("json", User.objects.all(),cls=LazyEncoder)
+        return Response(json.loads(otherway))
+
+    def post(self,request,format=None):
+        prod = request.data
+        if User.objects.filter(Username = prod['Username']):
+            return Response({'User already Exists'})
+        u = User()
+        salts = random.getrandbits(256)
+        string = prod['Password']+str(salts)
+        hashed = hashlib.sha256(str(string).encode('utf-8')).hexdigest()
+        print(hashed)
+        u.Username = prod['Username']
+        u.Password = hashed
+        u.Permissions = 'basic'
+        u.salt = salts
+        u.save()
+        return Response({"created"},status=status.HTTP_201_CREATED)
+
+class Login(APIView):
+    def post(self,request,format = None):
+        prod = request.data
+        if User.objects.filter(Username = prod['Username']):
+            
+            print('*************************************************************')
+            user =  User.objects.get(Username = prod['Username'])
+            print(user)
+            
+            string = prod['Password']+user.salt
+            if user.Password == hashlib.sha256(str(string).encode('utf-8')).hexdigest():
+                validate = True
+                return Response({"validated"})
+        
+        return Response({"Error validating"})
+
+class GetUserName (APIView):
+    @csrf_exempt
+    def get(self, request,name, format = None):
+        otherway = serialize("json", User.objects.filter(Username = name),cls=LazyEncoder)
+        return Response(json.loads(otherway))
+        
 class CampaignList (APIView):
     @csrf_exempt
     def get(self, request, format = None):

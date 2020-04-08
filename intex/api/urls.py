@@ -5,6 +5,9 @@ from api import views
 from django.urls import path
 urlpatterns = [ 
     path('category/', views.CategoryList.as_view()),
+    path('user/',views.GetUser.as_view()),
+    path('user/<str:name>',views.GetUserName.as_view()),
+    path('login/', views.Login.as_view()),
     path('campaign/', views.CampaignList.as_view()),
     path('searchcampaigns/<int:campaignID>', views.SearchCampaign.as_view()),
     path('searchwordcampaigns/<str:titles>', views.SearchCampaignTitle.as_view()),

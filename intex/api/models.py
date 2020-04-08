@@ -36,3 +36,9 @@ class Campaign(models.Model):
     is_charity = models.BooleanField(default=False)
     charity_name = models.TextField(default='')
     riskScore = models.FloatField(default = 0)
+
+class User(models.Model):
+    Username = models.TextField()
+    Password = models.TextField()
+    Permissions = models.TextField()
+    salt = models.TextField(default = '0')
