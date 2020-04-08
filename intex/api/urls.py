@@ -21,4 +21,6 @@ urlpatterns = [
     path('token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
     path('prediction/', views.CreatePrediction.as_view()),
+    path('predictiondonators/', views.CreateDonatorsPrediction.as_view()),
+    path('risk/', views.CreateRiskPrediction.as_view()),
 ]

@@ -15,6 +15,7 @@ import datetime
 from django.contrib.auth import authenticate
 import json
 import random
+import urllib
 from .serializers import CustomUserSerializer
 
 class LazyEncoder(DjangoJSONEncoder):
@@ -62,7 +63,6 @@ class GetUserName (APIView):
 class CampaignList (APIView):
     @csrf_exempt
     def get(self, request,numPage=0, format = None):
-        print(numPage)
         numPerPage  =25 
         otherway = serialize("json", Campaign.objects.all()[numPage:numPage+numPerPage],cls=LazyEncoder)
         return Response(json.loads(otherway))
@@ -139,14 +139,12 @@ class CampaignList (APIView):
 class SearchCampaign (APIView):
     @csrf_exempt
     def get(self,request,campaignID,format=None):
-        print(campaignID)
         otherway = serialize("json", Campaign.objects.filter(campaign_id= campaignID),cls=LazyEncoder)
         return Response(json.loads(otherway))
 
 class SearchCampaignTitle (APIView):
     @csrf_exempt
     def get(self,request,titles,numPage=0,format=None):
-        print(titles)
         campaigns = Campaign.objects.filter(title__contains = titles)[numPage:numPage+25]
         otherway = serialize("json", campaigns,cls=LazyEncoder)
         return Response(json.loads(otherway))
@@ -154,7 +152,6 @@ class SearchCampaignTitle (APIView):
 class SearchCampaignDesc (APIView):
     @csrf_exempt
     def get(self,request,desc,numPage=0,format=None):
-        print(desc)
         campaigns = Campaign.objects.filter(description__contains = desc)[numPage:numPage+25]
         otherway = serialize("json", campaigns,cls=LazyEncoder)
         return Response(json.loads(otherway))
@@ -170,8 +167,8 @@ class CreatePrediction(APIView):
     @csrf_exempt
     def post(self, request, format=None):
         body = json.loads(request.body)
-        print(body)
-        print("***** we made it here! ******")
+        #print(body)
+        #print("***** we made it here! ******")
         data =  {
                 "Inputs": {
                     "input1":
@@ -188,12 +185,77 @@ class CreatePrediction(APIView):
         url = 'https://ussouthcentral.services.azureml.net/workspaces/f7ecca118a3b46edab031906e04ea725/services/7cc3b91c7f554575877370c24beee235/execute?api-version=2.0&details=true'
         api_key = 'zY5Oie1v2gd8x7JUU+6t+eD06SSGIu3cSGLqJykxAKnI3fmvx3oTVwT9h8T9dGYZ5mqwfu/LswXXYCt3E1QKUQ=='
         headers = {'Content-Type':'application/json', 'Authorization':('Bearer '+ api_key)}
-        print(url, api_body, headers )
+        #print(url, api_body, headers )
         req = urllib.request.Request(url, api_body, headers) 
         response = urllib.request.urlopen(req)
-        print(response)
+        #print(response)
         result = response.read()
         result = json.loads(result) # turns bits into json object
         result = result["Results"]["output1"]["value"]["Values"][0][0] 
-        print(result)
+        #print(result)
+        return Response(result)
+
+
+class CreateDonatorsPrediction(APIView):
+    @csrf_exempt
+    def post(self, request, format=None):
+        body = json.loads(request.body)
+        #print( body['goal'])
+        #print("***** we made it here! ******")
+        data =  {
+                "Inputs": {
+                    "input1":
+                    {
+                        "ColumnNames": ["goal", "days_active", "has_beneficiary", "visible_in_search", "campaign_hearts", "is_charity"],
+                        "Values": [[ body['goal'], body['days_active'], body['has_beneficiary'],body['visible_in_search'], body['campaign_hearts'], body['is_charity']],]
+                    }, # in the values array above it may seem weird to put a value for the response var, but azure needs something
+                },
+                "GlobalParameters": {
+                }
+        }
+        # the API call
+        api_body = str.encode(json.dumps(data))
+        url = 'https://ussouthcentral.services.azureml.net/workspaces/f7ecca118a3b46edab031906e04ea725/services/2e2dd65311304921b473fd7f359479c6/execute?api-version=2.0&details=true'
+        api_key = 'owEWOGd+AmvoY0FC1UH2us9he8TitpJsZOSnVGFrz38LXM/3/0EhqOs3PpqKmwHiIp2QACtzgSKf062Sy/FVwQ=='
+        headers = {'Content-Type':'application/json', 'Authorization':('Bearer '+ api_key)}
+        #print(url, api_body, headers )
+        req = urllib.request.Request(url, api_body, headers) 
+        response = urllib.request.urlopen(req)
+        #print(response)
+        result = response.read()
+        result = json.loads(result) # turns bits into json object
+        result = result["Results"]["output1"]["value"]["Values"][0][0] 
+        #print(result)
+        return Response(result)
+####Risk Form
+class CreateRiskPrediction(APIView):
+    @csrf_exempt
+    def post(self, request, format=None):
+        body = json.loads(request.body)
+        #print(body)
+        #print("***** we made it here! ******")
+        data =  {
+                "Inputs": {
+                    "input1":
+                    {
+                        "ColumnNames": ["auto_fb_post_mode", "current_amount", "donators", "days_active", "has_beneficiary", "deactivated", "campaign_hearts", "social_share_total", "is_charity"],
+                        "Values": [[ body['auto_fb_post_mode'], body['current_amount'], body['donators'],body['days_active'], body['has_beneficiary'], body['deactivated'], body['campaign_hearts'], body['social_share_total'], body['is_charity']],]
+                    }, # in the values array above it may seem weird to put a value for the response var, but azure needs something
+                },
+                "GlobalParameters": {
+                }
+        }
+        # the API call
+        api_body = str.encode(json.dumps(data))
+        url = 'https://ussouthcentral.services.azureml.net/workspaces/f7ecca118a3b46edab031906e04ea725/services/a127f46fd7b64c48a08af4b17cc6f07f/execute?api-version=2.0&details=true'
+        api_key = '16ENkfD9pS7N+ll4OMWTgEUR2u+KGGH9Dr7s+avOfBtfGCjJ0CJMaIDwqPSYja4r4HAGeR2YzLxJfVCVgoaUHg=='
+        headers = {'Content-Type':'application/json', 'Authorization':('Bearer '+ api_key)}
+        #print(url, api_body, headers )
+        req = urllib.request.Request(url, api_body, headers) 
+        response = urllib.request.urlopen(req)
+        #print(response)
+        result = response.read()
+        result = json.loads(result) # turns bits into json object
+        result = result["Results"]["output1"]["value"]["Values"][0][0] 
+        #print(result)
         return Response(result)
