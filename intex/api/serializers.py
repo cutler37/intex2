@@ -1,16 +1,26 @@
-from django.contrib.auth.models import User, Group
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
-from api.models import Campaign,Category,CurrencyCode
+from .models import User
+# ...
+class CustomUserSerializer(serializers.ModelSerializer):
+    """
+    Currently unused in preference of the below.
+    """
+    email = serializers.EmailField(
+        required=True
+    )
+    username = serializers.CharField()
+    password = serializers.CharField(min_length=8, write_only=True)
 
-class CampaignSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = Campaign
-        fields = ['pk','url','campaign_id','auto_fb_post_mode','category','currencycode','current_amount','goal','donators','days_active','title','description','default_url','has_beneficiary','turn_off_donations','visible_in_search','status','deactivated','state','campaign_image_url','launch_date','campaign_hearts','social_share_total','social_share_last_update','location_city','location_country','location_zip','is_charity','charity_name']
-class CategorySerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Category
-        fields = ['pk', 'title']
-class CurrencyCodeSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = CurrencyCode
-        fields = ['pk', 'code']
+        model = User
+        fields = ('email', 'username', 'password')
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        password = validated_data.pop('password', None)
+        instance = self.Meta.model(**validated_data)  # as long as the fields are the same, we can just use this
+        if password is not None:
+            instance.set_password(password)
+        instance.save()
+        return instance

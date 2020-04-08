@@ -1,16 +1,21 @@
 from django.shortcuts import render
-from api.serializers import CampaignSerializer
+
 from api.models import Campaign,CurrencyCode,Category,User
 from django.core.serializers import serialize
 from django.views.decorators.csrf import csrf_exempt
 from django.core.serializers.json import DjangoJSONEncoder
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status,permissions
 import hashlib
 from django.http import JsonResponse
+from rest_framework.permissions import IsAuthenticated
+from django.http import HttpResponse
+import datetime
+from django.contrib.auth import authenticate
 import json
 import random
+from .serializers import CustomUserSerializer
 
 class LazyEncoder(DjangoJSONEncoder):
     def default(self, obj):
@@ -19,25 +24,21 @@ class LazyEncoder(DjangoJSONEncoder):
         return super().default(obj)
 # Create your views here.
 class GetUser (APIView):
+    permission_classes = (IsAuthenticated,)
     @csrf_exempt
     def get(self, request, format = None):
         otherway = serialize("json", User.objects.all()[:100],cls=LazyEncoder)
         return Response(json.loads(otherway))
 
-    def post(self,request,format=None):
-        prod = request.data
-        if User.objects.filter(Username = prod['Username']):
-            return Response({'User already Exists'})
-        u = User()
-        salts = random.getrandbits(256)
-        string = prod['Password']+str(salts)
-        hashed = hashlib.sha256(str(string).encode('utf-8')).hexdigest()
-        u.Username = prod['Username']
-        u.Password = hashed
-        u.Permissions = 'basic'
-        u.salt = salts
-        u.save()
-        return Response({"created"},status=status.HTTP_201_CREATED)
+    permission_classes = (permissions.AllowAny,)
+    def post(self, request, format='json'):
+        serializer = CustomUserSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            if user:
+                json = serializer.data
+                return Response(json, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class Login(APIView):
     def post(self,request,format = None):
@@ -164,3 +165,4 @@ class CategoryList (APIView):
         campaigns = Category.objects.all()
         otherway = serialize("json", campaigns,cls=LazyEncoder)
         return Response(json.loads(otherway))
+
