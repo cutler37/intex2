@@ -2,6 +2,7 @@ from django.conf.urls import url, include
 from django.contrib.auth.models import User
 from rest_framework import routers, serializers, viewsets
 from api import views
+from rest_framework_simplejwt import views as jwt_views
 from django.urls import path
 urlpatterns = [ 
     path('category/', views.CategoryList.as_view()),
@@ -17,4 +18,9 @@ urlpatterns = [
     path('SearchCampaignDesc/<str:desc>/<int:numPage>',views.SearchCampaignDesc.as_view()),
     #search campaign title, and second variable is page begining again.
     path('searchwordcampaigns/<str:titles>/<int:numPage>', views.SearchCampaignTitle.as_view()),
+    path('token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
+    path('prediction/', views.CreatePrediction.as_view()),
+    path('predictiondonators/', views.CreateDonatorsPrediction.as_view()),
+    path('risk/', views.CreateRiskPrediction.as_view()),
 ]
