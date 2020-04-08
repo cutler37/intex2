@@ -11,4 +11,5 @@ urlpatterns = [
     path('campaign/', views.CampaignList.as_view()),
     path('searchcampaigns/<int:campaignID>', views.SearchCampaign.as_view()),
     path('searchwordcampaigns/<str:titles>', views.SearchCampaignTitle.as_view()),
+    path('prediction/', views.CreatePrediction.as_view()),
 ]

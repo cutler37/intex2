@@ -11,6 +11,7 @@ import hashlib
 from django.http import JsonResponse
 import json
 import random
+import urllib
 
 class LazyEncoder(DjangoJSONEncoder):
     def default(self, obj):
@@ -160,3 +161,44 @@ class CategoryList (APIView):
         campaigns = Category.objects.all()
         otherway = serialize("json", campaigns,cls=LazyEncoder)
         return Response(json.loads(otherway))
+
+
+### Projection Form
+
+class CreatePrediction(APIView):
+    @csrf_exempt
+    def post(self, request, format=None):
+        body = json.loads(request.body)
+        
+        print(body)
+        print("***** we made it here! ******")
+        
+        data =  {
+                "Inputs": {
+                    "input1":
+                    {
+                        "ColumnNames": ["goal", "days_active", "has_beneficiary", "visible_in_search", "campaign_hearts", "is_charity"],
+                        "Values": [[ body['goal'], body['days_active'], body['has_beneficiary'],body['visible_in_search'], body['campaign_hearts'], body['is_charity']],]
+                    }, # in the values array above it may seem weird to put a value for the response var, but azure needs something
+                },
+                "GlobalParameters": {
+                }
+        }
+
+        # the API call
+        api_body = str.encode(json.dumps(data))
+        url = 'https://ussouthcentral.services.azureml.net/workspaces/f7ecca118a3b46edab031906e04ea725/services/7cc3b91c7f554575877370c24beee235/execute?api-version=2.0&details=true'
+        api_key = 'zY5Oie1v2gd8x7JUU+6t+eD06SSGIu3cSGLqJykxAKnI3fmvx3oTVwT9h8T9dGYZ5mqwfu/LswXXYCt3E1QKUQ=='
+        headers = {'Content-Type':'application/json', 'Authorization':('Bearer '+ api_key)}
+        print(url, api_body, headers )
+        req = urllib.request.Request(url, api_body, headers) 
+        
+        response = urllib.request.urlopen(req)
+        print(response)
+        result = response.read()
+        result = json.loads(result) # turns bits into json object
+        result = result["Results"]["output1"]["value"]["Values"][0][0] 
+        print(result)
+        return Response(result)
+
+       
