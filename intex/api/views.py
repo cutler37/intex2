@@ -21,7 +21,7 @@ class LazyEncoder(DjangoJSONEncoder):
 class GetUser (APIView):
     @csrf_exempt
     def get(self, request, format = None):
-        otherway = serialize("json", User.objects.all(),cls=LazyEncoder)
+        otherway = serialize("json", User.objects.all()[:100],cls=LazyEncoder)
         return Response(json.loads(otherway))
 
     def post(self,request,format=None):
@@ -32,7 +32,6 @@ class GetUser (APIView):
         salts = random.getrandbits(256)
         string = prod['Password']+str(salts)
         hashed = hashlib.sha256(str(string).encode('utf-8')).hexdigest()
-        print(hashed)
         u.Username = prod['Username']
         u.Password = hashed
         u.Permissions = 'basic'
@@ -44,10 +43,7 @@ class Login(APIView):
     def post(self,request,format = None):
         prod = request.data
         if User.objects.filter(Username = prod['Username']):
-            
-            print('*************************************************************')
             user =  User.objects.get(Username = prod['Username'])
-            print(user)
             
             string = prod['Password']+user.salt
             if user.Password == hashlib.sha256(str(string).encode('utf-8')).hexdigest():
@@ -64,15 +60,15 @@ class GetUserName (APIView):
         
 class CampaignList (APIView):
     @csrf_exempt
-    def get(self, request, format = None):
-        otherway = serialize("json", Campaign.objects.all(),cls=LazyEncoder)
+    def get(self, request,numPage=0, format = None):
+        print(numPage)
+        numPerPage  =25 
+        otherway = serialize("json", Campaign.objects.all()[numPage:numPage+numPerPage],cls=LazyEncoder)
         return Response(json.loads(otherway))
 
     @csrf_exempt
     def post(self,request,format=None):
         prod=request.data
-        print("********************************************************************************************")
-        print(prod['url'])
         p = Campaign()
         p.url = prod['url']
         p.campaign_id = prod['campaign_id']
@@ -148,9 +144,17 @@ class SearchCampaign (APIView):
 
 class SearchCampaignTitle (APIView):
     @csrf_exempt
-    def get(self,request,titles,format=None):
+    def get(self,request,titles,numPage=0,format=None):
         print(titles)
-        campaigns = Campaign.objects.filter(title= titles)
+        campaigns = Campaign.objects.filter(title__contains = titles)[numPage:numPage+25]
+        otherway = serialize("json", campaigns,cls=LazyEncoder)
+        return Response(json.loads(otherway))
+
+class SearchCampaignDesc (APIView):
+    @csrf_exempt
+    def get(self,request,desc,numPage=0,format=None):
+        print(desc)
+        campaigns = Campaign.objects.filter(description__contains = desc)[numPage:numPage+25]
         otherway = serialize("json", campaigns,cls=LazyEncoder)
         return Response(json.loads(otherway))
 
