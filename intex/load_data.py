@@ -112,6 +112,7 @@ def main():
             p.is_charity = False
         p.charity_name = prod['charity_name']
         p.riskScore = prod['riskScore']
+        p.riskScoreQuartile = prod['riskScoreQuartile']
         p.save()
         print('saved')
 

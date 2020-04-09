@@ -163,7 +163,15 @@ class CategoryList (APIView):
         otherway = serialize("json", campaigns,cls=LazyEncoder)
         return Response(json.loads(otherway))
 
+class SortRisk(APIView):
+    @csrf_exempt
+    def get(self,request,risk,numpage,format=None):
+        campaigns = Campaign.objects.filter(riskScoreQuartile = risk)[numpage:numpage+25]
+        otherway = serialize("json", campaigns,cls=LazyEncoder)
+        return Response(json.loads(otherway))
+
 class CreatePrediction(APIView):
+    permission_classes = (IsAuthenticated,)
     @csrf_exempt
     def post(self, request, format=None):
         body = json.loads(request.body)

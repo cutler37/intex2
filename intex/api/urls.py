@@ -18,6 +18,7 @@ urlpatterns = [
     path('SearchCampaignDesc/<str:desc>/<int:numPage>',views.SearchCampaignDesc.as_view()),
     #search campaign title, and second variable is page begining again.
     path('searchwordcampaigns/<str:titles>/<int:numPage>', views.SearchCampaignTitle.as_view()),
+    path('sortRisk/<int:risk>/<int:numpage>',views.SortRisk.as_view()),
     path('token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
     path('prediction/', views.CreatePrediction.as_view()),
