@@ -171,7 +171,7 @@ class SortRisk(APIView):
         return Response(json.loads(otherway))
 
 class CreatePrediction(APIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = []
     @csrf_exempt
     def post(self, request, format=None):
         body = json.loads(request.body)
@@ -205,6 +205,7 @@ class CreatePrediction(APIView):
 
 
 class CreateDonatorsPrediction(APIView):
+    permission_classes = []
     @csrf_exempt
     def post(self, request, format=None):
         body = json.loads(request.body)
@@ -237,6 +238,7 @@ class CreateDonatorsPrediction(APIView):
         return Response(result)
 ####Risk Form
 class CreateRiskPrediction(APIView):
+    permission_classes = []
     @csrf_exempt
     def post(self, request, format=None):
         body = json.loads(request.body)
