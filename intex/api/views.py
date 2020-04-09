@@ -145,14 +145,14 @@ class SearchCampaign (APIView):
 class SearchCampaignTitle (APIView):
     @csrf_exempt
     def get(self,request,titles,numPage=0,format=None):
-        campaigns = Campaign.objects.filter(title__contains = titles)[numPage:numPage+25]
+        campaigns = Campaign.objects.filter(title__contains = titles)[numPage:numPage+10]
         otherway = serialize("json", campaigns,cls=LazyEncoder)
         return Response(json.loads(otherway))
 
 class SearchCampaignDesc (APIView):
     @csrf_exempt
     def get(self,request,desc,numPage=0,format=None):
-        campaigns = Campaign.objects.filter(description__contains = desc)[numPage:numPage+25]
+        campaigns = Campaign.objects.filter(description__contains = desc)[numPage:numPage+10]
         otherway = serialize("json", campaigns,cls=LazyEncoder)
         return Response(json.loads(otherway))
 
@@ -166,7 +166,7 @@ class CategoryList (APIView):
 class SortRisk(APIView):
     @csrf_exempt
     def get(self,request,risk,numpage,format=None):
-        campaigns = Campaign.objects.filter(riskScoreQuartile = risk)[numpage:numpage+25]
+        campaigns = Campaign.objects.filter(riskScoreQuartile = risk)[numpage:numpage+10]
         otherway = serialize("json", campaigns,cls=LazyEncoder)
         return Response(json.loads(otherway))
 
