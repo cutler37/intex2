@@ -63,7 +63,7 @@ class GetUserName (APIView):
 class CampaignList (APIView):
     @csrf_exempt
     def get(self, request,numPage=0, format = None):
-        numPerPage  =10
+        numPerPage=10
         otherway = serialize("json", Campaign.objects.all()[numPage:numPage+numPerPage],cls=LazyEncoder)
         return Response(json.loads(otherway))
 
